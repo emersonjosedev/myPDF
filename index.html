@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PDF Toolbox — 100% Front-end</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <div class="logo">PDF</div>
+    <div class="title">Caixa de ferramentas PDF — Offline</div>
+    <div class="subtitle">Emerson Jose</div>
+  </header>
+
+  <div class="controls">
+    <input id="search" placeholder="Procurar ferramentas..." />
+    <label><input id="favOnly" type="checkbox"> Favoritos</label>
+  </div>
+
+  <main>
+    <div id="toolsGrid" class="tools-grid"></div>
+  </main>
+
+  <!-- Modal -->
+  <div id="modal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal">
+      <div id="modalBody"></div>
+      <div style="text-align:right;margin-top:12px"><button id="modalClose">Fechar</button></div>
+    </div>
+  </div>
+
+  <!-- libraries (global objects) -->
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
+  <!-- app (module) -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
