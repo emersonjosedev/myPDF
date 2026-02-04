@@ -11,7 +11,7 @@ import img2pdfTool from './tools/img2pdf.js';
 import pdf2imgTool from './tools/pdf2img.js';
 import watermarkTool from './tools/watermark.js';
 import rotateTool from './tools/rotate.js';
-import signTool from './tools/sign.js';
+
 import metadataTool from './tools/metadata.js';
 
 const tools = [
@@ -23,7 +23,7 @@ const tools = [
   pdf2imgTool,
   watermarkTool,
   rotateTool,
-  signTool,
+
   metadataTool
 ];
 

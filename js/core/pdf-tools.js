@@ -64,20 +64,7 @@ export async function rotateAll(file, degrees){
   return await pdf.save();
 }
 
-export async function signWithImage(file, sigFile){
-  const arr = await file.arrayBuffer();
-  const pdf = await PDFLib.PDFDocument.load(arr);
-  const sigArr = await sigFile.arrayBuffer();
-  let img;
-  try{ img = await pdf.embedPng(sigArr); }
-  catch(e){ img = await pdf.embedJpg(sigArr); }
-  const pages = pdf.getPages();
-  for(const p of pages){
-    const { width } = p.getSize();
-    p.drawImage(img, { x: width - 160, y: 40, width: 120 });
-  }
-  return await pdf.save();
-}
+
 
 export async function imagesToPdf(imageFiles){
   const { jsPDF } = window.jspdf;
@@ -124,5 +111,5 @@ export async function reorderPages(file, order){
 
 // export functions for other modules
 export default {
-  mergeFiles, extractPages, splitRange, addWatermark, addPageNumbers, rotateAll, signWithImage, imagesToPdf, compressPdf, reorderPages
+  mergeFiles, extractPages, splitRange, addWatermark, addPageNumbers, rotateAll, imagesToPdf, compressPdf, reorderPages
 };

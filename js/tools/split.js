@@ -4,7 +4,7 @@ import { downloadBlob } from '../utils/download.js';
 export default {
   title:'Dividir PDF', desc:'Divida um PDF por intervalo de páginas', icon:'✂️',
   render(){
-    const wrap = document.createElement('div');
+    const wrap = document.createElement('d');
     wrap.innerHTML = `
       <h3>Dividir PDF</h3>
       <input type="file" id="splitFile" accept="application/pdf">
