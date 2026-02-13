@@ -6,7 +6,7 @@ export default {
   desc: 'Combine vários arquivos PDF em um único documento',
   icon: '🧩',
 
-  render(){
+  render() {
     const wrap = document.createElement('div');
 
     wrap.innerHTML = `
@@ -14,72 +14,129 @@ export default {
 
       <input type="file" id="mergeFiles" multiple accept="application/pdf">
 
-      <ul id="fileList" style="
-        list-style:none;
-        padding:0;
-        margin:10px 0;
-        border:1px dashed #ccc;
-      "></ul>
+      <div id="previewList" style="
+        display:flex;
+        gap:12px;
+        flex-wrap:wrap;
+        margin:15px 0;
+      "></div>
 
       <button id="mergeBtn">Juntar</button>
       <div id="mergeStatus"></div>
     `;
 
     const input = wrap.querySelector('#mergeFiles');
-    const list  = wrap.querySelector('#fileList');
+    const previewList = wrap.querySelector('#previewList');
     const status = wrap.querySelector('#mergeStatus');
 
     let files = [];
 
-    /* Atualiza lista visual */
-    input.addEventListener('change', () => {
+    input.addEventListener('change', async () => {
       files = Array.from(input.files);
-      renderList();
+      await renderPreviews();
     });
 
-    function renderList(){
-      list.innerHTML = '';
-      files.forEach((file, index) => {
-        const li = document.createElement('li');
-        li.textContent = file.name;
-        li.draggable = true;
-        li.dataset.index = index;
+    async function renderPreviews() {
+      previewList.innerHTML = '';
 
-        li.style.cssText = `
-          padding:8px;
-          border-bottom:1px solid #eee;
-          cursor:grab;
-          background:#fafafa;
-        `;
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const card = document.createElement('div');
+        card.draggable = true;
+        card.dataset.index = i;
 
-        /* Drag events */
-        li.addEventListener('dragstart', e => {
-          e.dataTransfer.setData('index', index);
-          li.style.opacity = '0.5';
-        });
+        card.style.cssText = `
+  width:120px;
+  border:1px solid #ccc;
+  border-radius:6px;
+  padding:6px;
+  text-align:center;
+  background:#fff;
+  cursor:grab;
+  position:relative;
+`;
+const removeBtn = document.createElement('button');
+removeBtn.textContent = '✖';
+removeBtn.title = 'Remover PDF';
 
-        li.addEventListener('dragend', () => {
-          li.style.opacity = '1';
-        });
+removeBtn.style.cssText = `
+  position:absolute;
+  top:4px;
+  right:4px;
+  border:none;
+  background:#ff4d4f;
+  color:#fff;
+  border-radius:50%;
+  width:20px;
+  height:20px;
+  cursor:pointer;
+  font-size:12px;
+  line-height:18px;
+`;
 
-        li.addEventListener('dragover', e => e.preventDefault());
+removeBtn.addEventListener('click', (e) => {
+  e.stopPropagation(); // evita conflito com drag
+  files.splice(i, 1);
+  renderPreviews();
+});
 
-        li.addEventListener('drop', e => {
-          e.preventDefault();
-          const from = Number(e.dataTransfer.getData('index'));
-          const to = Number(li.dataset.index);
+card.appendChild(removeBtn);
 
-          const moved = files.splice(from, 1)[0];
-          files.splice(to, 0, moved);
+        const canvas = document.createElement('canvas');
+        canvas.style.width = '100%';
 
-          renderList();
-        });
+        const name = document.createElement('div');
+        name.textContent = file.name;
+        name.style.cssText = 'font-size:11px; margin-top:6px; word-break:break-all';
 
-        list.appendChild(li);
+        card.appendChild(canvas);
+        card.appendChild(name);
+        previewList.appendChild(card);
+
+        await renderPDFPreview(file, canvas);
+
+        enableDrag(card);
+      }
+    }
+
+    async function renderPDFPreview(file, canvas) {
+      const buffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+      const page = await pdf.getPage(1);
+
+      const viewport = page.getViewport({ scale: 0.4 });
+      const ctx = canvas.getContext('2d');
+
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      await page.render({ canvasContext: ctx, viewport }).promise;
+    }
+
+    function enableDrag(el) {
+      el.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('from', el.dataset.index);
+        el.style.opacity = '0.5';
+      });
+
+      el.addEventListener('dragend', () => {
+        el.style.opacity = '1';
+      });
+
+      el.addEventListener('dragover', e => e.preventDefault());
+
+      el.addEventListener('drop', e => {
+        e.preventDefault();
+        const from = Number(e.dataTransfer.getData('from'));
+        const to = Number(el.dataset.index);
+
+        const moved = files.splice(from, 1)[0];
+        files.splice(to, 0, moved);
+
+        renderPreviews();
       });
     }
 
-    /* Juntar PDFs respeitando a ordem visual */
     wrap.querySelector('#mergeBtn').addEventListener('click', async () => {
       if (!files.length) return alert('Escolha ao menos 1 PDF');
 
